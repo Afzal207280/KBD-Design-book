@@ -1,0 +1,107 @@
+{
+  "ruleset_id": "kdp-print-specs",
+  "version": "kdp-2026-09-20",
+  "marketplace": "kdp.amazon.com",
+  "effective_date_if_known": "2026-09-20",
+  "retrieval_date": "2026-09-20",
+  "sources": [
+    {
+      "name": "Amazon KDP Help: Set Trim Size, Bleed, and Margins (OFFICIAL)",
+      "url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+      "retrieved": "2026-09-20",
+      "covers": ["trim_sizes", "page_count_limits", "bleed", "margins", "gutter"]
+    },
+    {
+      "name": "Amazon KDP Help: Create a Paperback Cover (OFFICIAL, referenced)",
+      "url": "https://kdp.amazon.com/en_US/help/topic/G201953020",
+      "retrieved": "2026-09-20",
+      "covers": ["cover_reference"]
+    },
+    {
+      "name": "KDP Easy cover FAQ (third-party cross-check of spine formula)",
+      "url": "https://www.kdpeasy.com/faq/covers",
+      "retrieved": "2026-09-20",
+      "covers": ["spine_formula", "spine_text_minimum", "barcode_zone"]
+    },
+    {
+      "name": "MakeMyBookCover KDP calculator (third-party cross-check)",
+      "url": "https://makemybookcover.com/kdp-cover-size-calculator",
+      "retrieved": "2026-09-20",
+      "covers": ["cover_width_formula", "safe_zones", "spine_safe_margin", "hardcover_difference"]
+    },
+    {
+      "name": "Book Covers Lab template generator (third-party cross-check)",
+      "url": "https://bookcoverslab.com/kdp-cover-size-calculator",
+      "retrieved": "2026-09-20",
+      "covers": ["barcode_zone", "hardcover_case_laminate_formula"]
+    }
+  ],
+  "bleed_in": 0.125,
+  "bleed_note": "KDP trims 0.125in from top, bottom and OUTSIDE edge. Page with bleed: width +0.125, height +0.25. If any page bleeds, the whole file must be set up with bleed.",
+  "margins": {
+    "outside_min_no_bleed_in": 0.25,
+    "outside_min_with_bleed_in": 0.375,
+    "gutter_by_page_count": [
+      {"min_pages": 24, "max_pages": 150, "gutter_in": 0.375},
+      {"min_pages": 151, "max_pages": 300, "gutter_in": 0.5},
+      {"min_pages": 301, "max_pages": 500, "gutter_in": 0.625},
+      {"min_pages": 501, "max_pages": 700, "gutter_in": 0.75},
+      {"min_pages": 701, "max_pages": 828, "gutter_in": 0.875}
+    ]
+  },
+  "spine": {
+    "paper_thickness_in_per_page": {
+      "white": 0.002252,
+      "cream": 0.0025,
+      "color_standard": 0.002347,
+      "color_premium": 0.002347
+    },
+    "paperback_cover_allowance_in": 0.06,
+    "hardcover_cover_allowance_in": 0.0,
+    "spine_text_min_pages": 79,
+    "spine_text_safe_margin_in": 0.0625
+  },
+  "cover": {
+    "paperback": {
+      "width": "bleed + back_trim_w + spine + front_trim_w + bleed",
+      "height": "trim_h + 2*bleed",
+      "text_safe_margin_from_trim_in": 0.25,
+      "barcode_zone_in": {"w": 2.0, "h": 1.2}
+    },
+    "hardcover_case_laminate": {
+      "width": "2*trim_w + spine + 0.394 + 2*0.591",
+      "height": "trim_h + 0.236 + 2*0.591",
+      "hinge_in": 0.394,
+      "wrap_in": 0.591,
+      "note": "Case-laminate geometry cross-checked against third-party calculators; hardcover spine does NOT add the +0.06in paperback allowance."
+    }
+  },
+  "large_trim_threshold_in": {"width_gt": 6.12, "height_gt": 9.0},
+  "trim_sizes": {
+    "paperback": [
+      {"w": 5.0, "h": 8.0, "large": false, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 5.06, "h": 7.81, "large": false, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 5.25, "h": 8.0, "large": false, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 5.5, "h": 8.5, "large": false, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 6.0, "h": 9.0, "large": false, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 6.14, "h": 9.21, "large": true, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 6.69, "h": 9.61, "large": true, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 7.0, "h": 10.0, "large": true, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 7.44, "h": 9.69, "large": true, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 7.5, "h": 9.25, "large": true, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 8.0, "h": 10.0, "large": true, "limits": {"black_white": [24, 828], "black_cream": [24, 776], "black_groundwood": [24, 812], "standard_color": [72, 600], "premium_color": [24, 828]}},
+      {"w": 8.25, "h": 6.0, "large": true, "limits": {"black_white": [24, 800], "black_cream": [24, 750], "black_groundwood": [24, 784], "standard_color": [72, 600], "premium_color": [24, 800]}},
+      {"w": 8.25, "h": 8.25, "large": true, "limits": {"black_white": [24, 800], "black_cream": [24, 750], "black_groundwood": [24, 784], "standard_color": [72, 600], "premium_color": [24, 800]}},
+      {"w": 8.5, "h": 8.5, "large": true, "limits": {"black_white": [24, 590], "black_cream": [24, 550], "black_groundwood": [24, 578], "standard_color": [72, 600], "premium_color": [24, 590]}},
+      {"w": 8.5, "h": 11.0, "large": true, "limits": {"black_white": [24, 590], "black_cream": [24, 550], "black_groundwood": [24, 578], "standard_color": [72, 600], "premium_color": [24, 590]}},
+      {"w": 8.27, "h": 11.69, "large": true, "limits": {"black_white": [24, 780], "black_cream": [24, 730], "black_groundwood": [24, 764], "standard_color": null, "premium_color": [24, 590]}}
+    ],
+    "hardcover": [
+      {"w": 5.5, "h": 8.5, "large": false, "limits": {"black_white": [75, 550], "black_cream": [75, 550], "premium_color": [75, 550]}},
+      {"w": 6.0, "h": 9.0, "large": false, "limits": {"black_white": [75, 550], "black_cream": [75, 550], "premium_color": [75, 550]}},
+      {"w": 6.14, "h": 9.21, "large": true, "limits": {"black_white": [75, 550], "black_cream": [75, 550], "premium_color": [75, 550]}},
+      {"w": 7.0, "h": 10.0, "large": true, "limits": {"black_white": [75, 550], "black_cream": [75, 550], "premium_color": [75, 550]}},
+      {"w": 8.25, "h": 11.0, "large": true, "limits": {"black_white": [75, 550], "black_cream": [75, 550], "premium_color": [75, 550]}}
+    ]
+  }
+}

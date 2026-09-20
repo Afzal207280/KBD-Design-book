@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KDP Book Factory</title>
+<style>
+ :root { --bg:#0f1318; --panel:#171e26; --line:#263140; --text:#e8ecef;
+         --muted:#93a4b5; --green:#2e9e6b; --yellow:#d9a13b; --red:#d05252;
+         --accent:#3f8ef7; }
+ * { box-sizing:border-box; }
+ body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+        background:var(--bg); color:var(--text); }
+ header { padding:18px 28px; border-bottom:1px solid var(--line);
+          display:flex; align-items:baseline; gap:14px; }
+ header h1 { font-size:19px; margin:0; }
+ header .tag { color:var(--muted); font-size:12px; }
+ main { display:grid; grid-template-columns: 420px 1fr; gap:0; min-height:calc(100vh - 62px); }
+ .col { padding:22px 26px; }
+ .col.left { border-right:1px solid var(--line); background:var(--panel); }
+ label { display:block; font-size:12px; color:var(--muted); margin:14px 0 4px; }
+ input[type=text], select { width:100%; padding:10px 12px; background:#0d1116;
+   color:var(--text); border:1px solid var(--line); border-radius:8px; font-size:14px; }
+ input:focus, select:focus, button:focus { outline:2px solid var(--accent); outline-offset:1px; }
+ button.primary { margin-top:18px; width:100%; padding:12px; font-size:15px; font-weight:600;
+   background:var(--accent); color:white; border:0; border-radius:8px; cursor:pointer; }
+ button.primary:hover { filter:brightness(1.1); }
+ .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+ details { margin-top:14px; } summary { cursor:pointer; color:var(--muted); font-size:13px; }
+ h2 { font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+ .status-pill { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px;
+   font-weight:700; }
+ .GREEN { background:rgba(46,158,107,.18); color:#5ad094; }
+ .YELLOW { background:rgba(217,161,59,.18); color:#e8bd6d; }
+ .RED { background:rgba(208,82,82,.18); color:#e88; }
+ .UNVERIFIED { background:rgba(147,164,181,.15); color:var(--muted); }
+ .bar { height:10px; background:#0d1116; border-radius:6px; overflow:hidden; margin:8px 0; }
+ .bar i { display:block; height:100%; background:var(--accent); transition:width .4s; }
+ .stage { font-size:13px; color:var(--muted); }
+ table { width:100%; border-collapse:collapse; font-size:12.5px; }
+ td, th { border-bottom:1px solid var(--line); padding:5px 6px; text-align:left; }
+ .pass { color:#5ad094; } .fail { color:#e88; } .warn { color:#e8bd6d; }
+ .cards { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+ .card { background:#0d1116; border:1px solid var(--line); border-radius:10px;
+         padding:10px 12px; font-size:12.5px; cursor:pointer; min-width:170px; }
+ .card b { display:block; font-size:13px; margin-bottom:3px; }
+ .previews img { width:104px; border:1px solid var(--line); border-radius:6px; margin:4px; }
+ a.dl { display:inline-block; margin:6px 10px 0 0; padding:9px 16px; border-radius:8px;
+        background:var(--green); color:white; text-decoration:none; font-size:13px; font-weight:600; }
+ a.dl.secondary { background:#33445a; }
+ .muted { color:var(--muted); font-size:12px; }
+ ul.defects { font-size:12.5px; padding-left:18px; }
+ nav { display:flex; gap:16px; margin:10px 0 0; font-size:13px; }
+ nav a { color:var(--muted); text-decoration:none; }
+ nav a.active { color:var(--text); font-weight:600; }
+ .section { margin-top:22px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>KDP Book Factory</h1>
+  <span class="tag" id="ruleset-tag">autonomous book production pipeline</span>
+</header>
+<main>
+  <section class="col left" aria-label="Create a book">
+    <h2>New book</h2>
+    <label for="topic">Topic / niche / idea (the only required input)</label>
+    <input type="text" id="topic" placeholder="e.g. gratitude journal for nurses" autofocus>
+    <details open>
+      <summary>Optional overrides (leave empty for autonomous decisions)</summary>
+      <div class="row">
+        <div><label for="book_type">Book type</label>
+          <select id="book_type"><option value="">auto-detect</option></select></div>
+        <div><label for="color_mode">Interior color</label>
+          <select id="color_mode">
+            <option value="">auto</option>
+            <option>BLACK_AND_WHITE</option><option>GRAYSCALE</option>
+            <option>FULL_COLOR</option><option>MIXED_COLOR</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <div><label for="format">Format</label>
+          <select id="format">
+            <option value="combined">print + ebook</option>
+            <option value="print">print only</option>
+            <option value="ebook">ebook only</option>
+          </select></div>
+        <div><label for="binding">Binding</label>
+          <select id="binding">
+            <option value="paperback">paperback</option>
+            <option value="hardcover">hardcover</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <div><label for="author">Author / pen name</label>
+          <input type="text" id="author" placeholder="auto pen name"></div>
+        <div><label for="trim">Trim size</label>
+          <select id="trim"><option value="">auto</option></select></div>
+      </div>
+      <label for="pages">Target pages</label>
+      <input type="text" id="pages" placeholder="auto by book type">
+    </details>
+    <button class="primary" id="build-btn">Build book autonomously</button>
+    <div class="section">
+      <h2>Projects</h2>
+      <div class="cards" id="project-list"></div>
+    </div>
+  </section>
+  <section class="col" aria-label="Pipeline status">
+    <div id="detail">
+      <p class="muted">Give a topic, watch real progress, review decisions, receive the
+        finished &amp; verified package. Every status below comes from actual validator runs —
+        no mocked PASS states.</p>
+    </div>
+  </section>
+</main>
+<script>
+let TYPES = [], TRIMS = [], current = null, timer = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  return await r.json();
+}
+
+async function init() {
+  const rs = await api('/api/ruleset');
+  document.getElementById('ruleset-tag').textContent = 'ruleset ' + rs.version +
+    ' (retrieved ' + rs.retrieved + ')';
+  TRIMS = rs.trims;
+  const trimSel = document.getElementById('trim');
+  rs.trims.forEach(t => { const o = document.createElement('option');
+    o.value = t; o.textContent = t; trimSel.appendChild(o); });
+  const bt = await api('/api/booktypes').catch(() => ({types:[]}));
+  (bt.types || []).forEach(t => { const o = document.createElement('option');
+    o.value = t; o.textContent = t.replace(/_/g,' '); document.getElementById('book_type').appendChild(o); });
+  refreshList();
+}
+
+async function refreshList() {
+  const r = await api('/api/projects');
+  const el = document.getElementById('project-list');
+  el.innerHTML = '';
+  (r.projects || []).forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.innerHTML = `<b>${(p.title || p.topic || p.project_id)}</b>
+      <span class="status-pill ${p.status || 'UNVERIFIED'}">${p.status || 'RUNNING'}</span>
+      <div class="muted">${p.state || ''} · ${p.progress || 0}%</div>`;
+    d.onclick = () => select(p.project_id);
+    el.appendChild(d);
+  });
+}
+
+async function build() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) return alert('Please enter a topic — that is the only required input.');
+  const overrides = {};
+  const g = id => document.getElementById(id).value;
+  if (g('book_type')) overrides.book_type = g('book_type');
+  if (g('color_mode')) overrides.color_mode = g('color_mode');
+  if (g('format')) overrides.format = g('format');
+  if (g('binding')) overrides.binding = g('binding');
+  if (g('author')) overrides.author = g('author');
+  if (g('trim')) overrides.trim = g('trim').match(/[\d.]+/g).map(Number);
+  if (g('pages')) overrides.target_pages = parseInt(g('pages'));
+  const r = await api('/api/projects', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({topic, overrides})});
+  if (r.error) return alert(r.error);
+  select(r.project_id);
+}
+
+function select(pid) { current = pid; poll(); clearInterval(timer);
+  timer = setInterval(poll, 1200); }
+
+async function poll() {
+  if (!current) return;
+  const s = await api('/api/projects/' + current);
+  render(s);
+  refreshList();
+  if (['VERIFIED','VERIFIED_WITH_WARNINGS','FAILED'].includes(s.state)) clearInterval(timer);
+}
+
+function render(s) {
+  const prog = s.progress || {};
+  const v = s.validation || {};
+  let rows = Object.entries(v).map(([k, r]) =>
+    `<tr><td>${k}</td><td class="${r.status==='PASS'?'pass':(r.status==='WARN'?'warn':'fail')}">
+     ${r.status}</td><td class="muted">v${r.artifact_version} · ${r.timestamp||''}</td></tr>`).join('');
+  const defects = (s.defects||[]).map(d =>
+    `<li><b>${d.severity}</b> ${d.root_cause}: ${d.detail}</li>`).join('');
+  const repairs = (s.repairs||[]).map(r =>
+    `<li>${r.action} → ${r.invalidate} <span class="muted">(${r.description})</span></li>`).join('');
+  const decisions = (s.decisions||[]).map(d =>
+    `<li><b>${d.decision}</b>: ${d.result} <span class="muted">— ${d.reason||''}</span></li>`).join('');
+  const done = ['VERIFIED','VERIFIED_WITH_WARNINGS'].includes(s.state);
+  const cfg = s.config || {};
+  const previews = Object.keys(s.artifacts||{}).length;
+  document.getElementById('detail').innerHTML = `
+    <h2>${(cfg.title || s.topic || '') }
+      <span class="status-pill ${s.status||'UNVERIFIED'}">${s.status||'UNVERIFIED'}</span></h2>
+    <div class="muted">${cfg.subtitle || ''} · ${cfg.author?.name || ''} ·
+      ${cfg.book_type || ''} · ${cfg.trim_w}"×${cfg.trim_h}" · ${cfg.color_mode} ·
+      ${s.page_count || '—'} pages · spine ${(s.spine_in||0).toFixed(4)}"</div>
+    <div class="bar"><i style="width:${prog.pct||0}%"></i></div>
+    <div class="stage">${prog.stage || ''} — ${prog.detail || ''}
+      · ${prog.elapsed_s||0}s · validators ${prog.validations||0} · repairs ${prog.repairs||0}</div>
+    ${done ? `<div>
+       <a class="dl" href="/api/projects/${s.project_id}/download">⬇ Download final package</a>
+       <a class="dl secondary" href="/api/projects/${s.project_id}/artifact/interior.pdf">interior PDF</a>
+       <a class="dl secondary" href="/api/projects/${s.project_id}/artifact/cover.pdf">cover PDF</a>
+       ${cfg.format!=='print' ? `<a class="dl secondary" href="/api/projects/${s.project_id}/artifact/book.epub">EPUB</a>`:''}
+       <a class="dl secondary" href="/api/projects/${s.project_id}/artifact/cover.png">cover PNG</a>
+       <p class="muted">The downloaded ZIP contains <b>START_HERE.html</b> with a direct
+       link straight back into this website.</p></div>` : ''}
+    ${s.final_audit ? `<div class="section"><h2>Final audit</h2>
+       <span class="${s.final_audit.pass?'pass':'fail'}">${s.final_audit.pass?'PASS':'FAIL'}</span>
+       · ${s.final_audit.checks_run} checks
+       ${(s.final_audit.failures||[]).length ? `<ul class="defects">` +
+         s.final_audit.failures.map(f=>`<li>${f}</li>`).join('') + `</ul>` : ''}</div>` : ''}
+    <div class="section"><h2>Validators (live evidence)</h2>
+      <table><tr><th>validator</th><th>status</th><th>artifact / time</th></tr>${rows ||
+        '<tr><td colspan="3" class="muted">no validators run yet</td></tr>'}</table></div>
+    ${defects ? `<div class="section"><h2>Open defects</h2><ul class="defects">${defects}</ul></div>` : ''}
+    ${repairs ? `<div class="section"><h2>Repairs applied</h2><ul class="defects">${repairs}</ul></div>` : ''}
+    ${decisions ? `<div class="section"><h2>Auditable decisions</h2><ul class="defects">${decisions}</ul></div>` : ''}
+    <div class="section"><h2>Release</h2>
+      <p class="muted">${s.release?.locked ?
+        `Locked · ${s.release.status} · build ${s.release.build_id}` :
+        'Not locked. Software verification does not imply Amazon approval or physical print proof.'}
+      </p></div>`;
+}
+
+document.getElementById('build-btn').onclick = build;
+document.getElementById('topic').addEventListener('keydown', e => { if (e.key==='Enter') build(); });
+init();
+</script>
+</body>
+</html>

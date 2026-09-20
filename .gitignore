@@ -1,0 +1,9 @@
+# Runtime data — never commit generated projects/exports (§101)
+projects/
+exports/
+*.pyc
+__pycache__/
+.cache/
+tests/tmp/
+baselines/tmp/
+node_modules/
