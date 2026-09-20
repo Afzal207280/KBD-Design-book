@@ -231,6 +231,29 @@ def generate_content(cfg, profile: dict, research_entries: list) -> dict:
     else:
         raise ValueError(f"no content engine for {engine}")
 
+    # §27–32: declared color intent must be honoured by the actual pages.
+    # Engines without art (puzzles, planners, workbooks…) get deterministic
+    # chromatic scene plates when the book is declared FULL/MIXED color —
+    # otherwise visual-qa rightfully rejects the mismatch.
+    if cfg.color_mode in ("FULL_COLOR", "MIXED_COLOR"):
+        has_art = any(b.get("t") in ("illustration", "comic_page")
+                      for s in content["sections"] for b in s["blocks"])
+        if not has_art:
+            scenes = [
+                {"sky": (0.72, 0.86, 0.95), "ground": (0.55, 0.72, 0.45),
+                 "hills": [0.55], "sun": True},
+                {"sky": (0.98, 0.85, 0.70), "ground": (0.80, 0.62, 0.40),
+                 "hills": [0.4, 0.7], "sun": True},
+                {"sky": (0.80, 0.90, 0.92), "ground": (0.45, 0.60, 0.65),
+                 "hills": [0.3, 0.6], "sun": False},
+                {"sky": (0.90, 0.80, 0.90), "ground": (0.62, 0.70, 0.42),
+                 "hills": [0.5], "sun": True},
+            ]
+            for i in range(6):
+                content["sections"].insert(i * 2, {"title": "", "blocks": [
+                    {"t": "illustration", "scene": scenes[i % len(scenes)],
+                     "chars": []}]})
+
     content["word_count"] = words_written[0] or sum(
         len((b.get("text") or "").split()) for s in content["sections"]
         for b in s["blocks"])

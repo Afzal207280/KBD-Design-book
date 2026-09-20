@@ -253,11 +253,31 @@ class Pipeline:
         cfg.category = prof["category"]
         cfg.color_mode = overrides.get("color_mode") or prof["default_color"]
         cfg.illustration_mode = overrides.get("illustration_mode") or prof["illustration"]
-        cfg.trim_w, cfg.trim_h = overrides.get("trim") or prof["default_trim"]
+        _trim_override = overrides.get("trim")
+        cfg.trim_w, cfg.trim_h = _trim_override or prof["default_trim"]
         cfg.bleed = bool(overrides.get("bleed", prof["bleed"]))
         cfg.target_pages = int(overrides.get("target_pages", prof["target_pages"]))
         cfg.format = overrides.get("format", "combined")
         cfg.binding = overrides.get("binding", "paperback")
+        if not _trim_override and \
+                self.ruleset.find_trim(cfg.trim_w, cfg.trim_h, cfg.binding) is None:
+            # trim was left autonomous ("auto") but the profile default trim is
+            # not offered for the chosen binding → autonomously pick the valid
+            # trim closest in area and record the decision deterministically.
+            import math
+            want_area = prof["default_trim"][0] * prof["default_trim"][1]
+            best = min(self.ruleset.trims(cfg.binding),
+                       key=lambda t: abs(math.log((t.w * t.h) / want_area)))
+            old = (cfg.trim_w, cfg.trim_h)
+            cfg.trim_w, cfg.trim_h = best.w, best.h
+            state["decisions"].append({
+                "decision": "trim_autoselect", "stage": "ANALYZING",
+                "inputs": {"profile_default_trim": list(old),
+                           "binding": cfg.binding},
+                "rules": f"ruleset {self.ruleset.version}: {cfg.binding} trim list",
+                "reason": f"trim {old[0]}x{old[1]} not offered for {cfg.binding}; "
+                          f"nearest-area valid trim chosen autonomously (trim=auto)",
+                "result": [cfg.trim_w, cfg.trim_h], "model": "none-deterministic"})
         paper = overrides.get("paper", cfg.paper or "white")
         if paper not in ("white", "cream", "groundwood"):
             raise FactoryError(

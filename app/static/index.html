@@ -188,6 +188,9 @@ function render(s) {
      ${r.status}</td><td class="muted">v${r.artifact_version} · ${r.timestamp||''}</td></tr>`).join('');
   const defects = (s.defects||[]).map(d =>
     `<li><b>${d.severity}</b> ${d.root_cause}: ${d.detail}</li>`).join('');
+  const errors = (s.errors||[]).map(e => typeof e === 'string' ?
+    `<li><b>ERROR</b> ${e}</li>` :
+    `<li><b>${e.severity||'ERROR'}</b> ${e.root_cause||''}: ${e.message||''} ${e.remediation?`<span class="muted">(${e.remediation})</span>`:''}</li>`).join('');
   const repairs = (s.repairs||[]).map(r =>
     `<li>${r.action} → ${r.invalidate} <span class="muted">(${r.description})</span></li>`).join('');
   const decisions = (s.decisions||[]).map(d =>
@@ -221,6 +224,7 @@ function render(s) {
       <table><tr><th>validator</th><th>status</th><th>artifact / time</th></tr>${rows ||
         '<tr><td colspan="3" class="muted">no validators run yet</td></tr>'}</table></div>
     ${defects ? `<div class="section"><h2>Open defects</h2><ul class="defects">${defects}</ul></div>` : ''}
+    ${errors ? `<div class="section"><h2>Why this build failed</h2><ul class="defects">${errors}</ul></div>` : ''}
     ${repairs ? `<div class="section"><h2>Repairs applied</h2><ul class="defects">${repairs}</ul></div>` : ''}
     ${decisions ? `<div class="section"><h2>Auditable decisions</h2><ul class="defects">${decisions}</ul></div>` : ''}
     <div class="section"><h2>Release</h2>
