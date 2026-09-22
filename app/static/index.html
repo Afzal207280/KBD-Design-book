@@ -144,6 +144,30 @@ async function saveZip(pid) {
   }
 }
 
+function openTopDownload(pid) {
+  // Escape the preview frame: a top-level navigation to a
+  // Content-Disposition:attachment URL makes the BROWSER save the file while
+  // keeping the current page. Popup first, then top-navigation, then copy.
+  const url = location.origin + `/api/projects/${pid}/download`;
+  const w = window.open(url, '_blank');
+  if (!w) {
+    try { window.top.location.href = url; }
+    catch (e) { copyDlLink(true); }
+  }
+}
+
+function copyDlLink(announce) {
+  const i = document.getElementById('dlurl');
+  if (!i) return;
+  i.select(); i.setSelectionRange(0, 99999);
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  if (!ok && navigator.clipboard) navigator.clipboard.writeText(i.value).catch(() => {});
+  const b = document.getElementById('copybtn');
+  if (b) { b.textContent = '✓ copied!'; setTimeout(() => b.textContent = '📋 copy link', 1600); }
+  if (announce) alert('Link copied — paste it (Ctrl+V) in a fresh browser tab and press Enter.');
+}
+
 async function init() {
   const rs = await api('/api/ruleset');
   document.getElementById('ruleset-tag').textContent = 'ruleset ' + rs.version +
@@ -231,14 +255,17 @@ function render(s) {
       · ${prog.elapsed_s||0}s · validators ${prog.validations||0} · repairs ${prog.repairs||0}</div>
     ${done ? `<div>
        <button class="dl" style="cursor:pointer;border:none" onclick="saveZip('${s.project_id}')">⬇ Download final package</button>
+       <button class="dl secondary" style="cursor:pointer" onclick="openTopDownload('${s.project_id}')"> download via your browser (escapes preview frame)</button>
        <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/download">open in new tab</a>
        <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/interior.pdf">interior PDF</a>
        <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/cover.pdf">cover PDF</a>
        ${cfg.format!=='print' ? `<a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/book.epub">EPUB</a>`:''}
        <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/cover.png">cover PNG</a>
-       <p class="muted">If the button is blocked by the preview frame, use
-       <b>open in new tab</b>, or copy the direct link:
-       <input id="dlurl" readonly style="width:100%;margin-top:6px;background:#0d1218;color:#9fb0c0;border:1px solid var(--line);border-radius:6px;padding:6px" value="${location.origin}/api/projects/${s.project_id}/download" onclick="this.select();document.execCommand('copy')"/>
+       <p class="muted">ডাউনলোড না হলে: preview frame ব্রাউজারের download block করছে।
+       নিচের লিংক কপি করে আপনার ব্রাউজারের <b>নতুন tab</b>-এ paste করে Enter চাপুন —
+       তাহলেই ZIP নামবে।
+       <input id="dlurl" readonly style="width:100%;margin-top:6px;background:#0d1218;color:#9fb0c0;border:1px solid var(--line);border-radius:6px;padding:6px" value="${location.origin}/api/projects/${s.project_id}/download"/>
+       <button id="copybtn" class="dl secondary" style="cursor:pointer;margin-top:6px" onclick="copyDlLink(false)">📋 copy link</button>
        </p>
        <p class="muted">The downloaded ZIP contains <b>START_HERE.html</b> with a direct
        link straight back into this website.</p></div>` : ''}
