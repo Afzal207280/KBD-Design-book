@@ -122,6 +122,28 @@ async function api(path, opts) {
   return await r.json();
 }
 
+async function saveZip(pid) {
+  // fetch→blob download: works even when the preview iframe blocks plain
+  // link-navigation downloads; filename taken from Content-Disposition.
+  try {
+    const r = await fetch(`/api/projects/${pid}/download`);
+    if (!r.ok) { alert('download failed: HTTP ' + r.status); return; }
+    const cd = r.headers.get('Content-Disposition') || '';
+    const m = cd.match(/filename="([^"]+)"/);
+    const name = m ? decodeURIComponent(m[1]) : (pid + '.zip');
+    const blob = await r.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  } catch (e) {
+    alert('download failed: ' + e + ' — use "open in new tab" or copy the link');
+  }
+}
+
 async function init() {
   const rs = await api('/api/ruleset');
   document.getElementById('ruleset-tag').textContent = 'ruleset ' + rs.version +
@@ -208,11 +230,16 @@ function render(s) {
     <div class="stage">${prog.stage || ''} — ${prog.detail || ''}
       · ${prog.elapsed_s||0}s · validators ${prog.validations||0} · repairs ${prog.repairs||0}</div>
     ${done ? `<div>
-       <a class="dl" href="/api/projects/${s.project_id}/download">⬇ Download final package</a>
-       <a class="dl secondary" href="/api/projects/${s.project_id}/artifact/interior.pdf">interior PDF</a>
-       <a class="dl secondary" href="/api/projects/${s.project_id}/artifact/cover.pdf">cover PDF</a>
-       ${cfg.format!=='print' ? `<a class="dl secondary" href="/api/projects/${s.project_id}/artifact/book.epub">EPUB</a>`:''}
-       <a class="dl secondary" href="/api/projects/${s.project_id}/artifact/cover.png">cover PNG</a>
+       <button class="dl" style="cursor:pointer;border:none" onclick="saveZip('${s.project_id}')">⬇ Download final package</button>
+       <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/download">open in new tab</a>
+       <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/interior.pdf">interior PDF</a>
+       <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/cover.pdf">cover PDF</a>
+       ${cfg.format!=='print' ? `<a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/book.epub">EPUB</a>`:''}
+       <a class="dl secondary" target="_blank" rel="noopener" href="/api/projects/${s.project_id}/artifact/cover.png">cover PNG</a>
+       <p class="muted">If the button is blocked by the preview frame, use
+       <b>open in new tab</b>, or copy the direct link:
+       <input id="dlurl" readonly style="width:100%;margin-top:6px;background:#0d1218;color:#9fb0c0;border:1px solid var(--line);border-radius:6px;padding:6px" value="${location.origin}/api/projects/${s.project_id}/download" onclick="this.select();document.execCommand('copy')"/>
+       </p>
        <p class="muted">The downloaded ZIP contains <b>START_HERE.html</b> with a direct
        link straight back into this website.</p></div>` : ''}
     ${s.final_audit ? `<div class="section"><h2>Final audit</h2>
